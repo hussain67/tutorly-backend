@@ -37,4 +37,4 @@ jobs:
         run: npm run build --if-present
 
       - name: Run tests
-        run: npm test -- --runInBand
+        run: npm test
