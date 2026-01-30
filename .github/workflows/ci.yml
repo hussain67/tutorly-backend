@@ -41,6 +41,19 @@ jobs:
       - name: Build (TypeScript if present)
         run: npm run build --if-present
 
+      - name: Wait for MongoDB
+        run: |
+          for i in {1..10}; do
+            if nc -z localhost 27017; then
+              echo "MongoDB is ready";
+              exit 0;
+            fi
+            echo "Waiting for MongoDB...";
+            sleep 2;
+          done
+          echo "MongoDB did not become ready in time";
+          exit 1
+
       - name: Run tests
         run: npm test
         env:
