@@ -1,18 +1,23 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-let mongo: MongoMemoryServer;
+
+
+let mongoServer: MongoMemoryServer;
 
 export const connectTestDB = async () => {
-	mongo = await MongoMemoryServer.create({
+
+	if(!process.env.CI){
+	mongoServer = await MongoMemoryServer.create({
 		binary: {
 			version: "6.0.13" // ✅ stable on macOS
 		}
-	});
-
-	const uri = mongo.getUri();
-	await mongoose.connect(uri);
-};
+	})
+	}else{
+		   await mongoose.connect(
+      process.env.MONGO_URI || "mongodb://mongodb:27017/testdb"
+    );
+  }};
 
 export const closeTestDB = async () => {
 	if (mongoose.connection.readyState !== 0) {
@@ -20,8 +25,8 @@ export const closeTestDB = async () => {
 		await mongoose.connection.close();
 	}
 
-	if (mongo) {
-		await mongo.stop();
+	if (mongoServer) {
+		await mongoServer.stop();
 	}
 };
 
