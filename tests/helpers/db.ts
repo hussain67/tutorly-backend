@@ -48,9 +48,18 @@ export const connectTestDB = async () => {
   }};
 
 export const closeTestDB = async () => {
-	if (mongoose.connection.readyState !== 0) {
-		await mongoose.connection.dropDatabase();
-		await mongoose.connection.close();
+	try {
+		if (mongoose.connection.readyState !== 0) {
+			await Promise.race([
+				mongoose.connection.dropDatabase(),
+				new Promise((_, reject) =>
+					setTimeout(() => reject(new Error("dropDatabase timeout")), 5000)
+				)
+			]);
+			await mongoose.connection.close();
+		}
+	} catch (error) {
+		console.error("[MongoDB] Error closing database:", (error as Error).message);
 	}
 
 	if (mongoServer) {
