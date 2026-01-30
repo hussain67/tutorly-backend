@@ -58,5 +58,6 @@ jobs:
       - name: Run tests
         run: npm test
         env:
+          CI: true
           MONGODB_URI: mongodb://localhost:27017/testdb
           NODE_ENV: test
