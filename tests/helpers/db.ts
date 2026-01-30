@@ -14,9 +14,33 @@ export const connectTestDB = async () => {
 		}
 	})
 	}else{
-		   await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://mongodb:27017/testdb"
-    );
+		const mongoUri =
+			process.env.MONGODB_URI ||
+			process.env.MONGO_URI ||
+			"mongodb://mongodb:27017/testdb";
+
+		const connectWithRetry = async (
+			uri: string,
+			retries = 5,
+			delayMs = 2000
+		) => {
+			for (let attempt = 1; attempt <= retries; attempt++) {
+				try {
+					await mongoose.connect(uri, {
+						serverSelectionTimeoutMS: 5000,
+						connectTimeoutMS: 5000
+					});
+					return;
+				} catch (error) {
+					if (attempt === retries) {
+						throw error;
+					}
+					await new Promise((resolve) => setTimeout(resolve, delayMs));
+				}
+			}
+		};
+
+		await connectWithRetry(mongoUri);
   }};
 
 export const closeTestDB = async () => {
