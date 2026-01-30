@@ -1,4 +1,4 @@
-import { json, Request, Response } from "express";
+import { Request, Response } from "express";
 import Course from "../models/courseModel";
 
 export async function getAllCourses(req: Request, res: Response) {

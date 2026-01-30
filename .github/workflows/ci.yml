@@ -17,13 +17,11 @@ jobs:
   test:
     name: Build & Test
     runs-on: ubuntu-latest
-
     services:
       mongodb:
         image: mongo:6
         ports:
           - 27017:27017
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,5 +41,23 @@ jobs:
       - name: Build (TypeScript if present)
         run: npm run build --if-present
 
+      - name: Wait for MongoDB
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 27017 2>/dev/null; then
+              echo "✓ MongoDB is accepting connections";
+              sleep 2;
+              exit 0;
+            fi
+            echo "[$i/30] Waiting for MongoDB...";
+            sleep 1;
+          done
+          echo "✗ MongoDB did not become ready in time";
+          exit 1
+
       - name: Run tests
         run: npm test
+        env:
+          CI: true
+          MONGODB_URI: mongodb://localhost:27017/testdb
+          NODE_ENV: test
