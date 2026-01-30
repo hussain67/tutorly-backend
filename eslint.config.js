@@ -2,4 +2,24 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
-export default [js.configs.recommended, ...tseslint.configs.recommended];
+export default tseslint.config(
+  {
+    ignores: ["dist", "node_modules"]
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        sourceType: "module"
+      }
+    },
+    rules: {
+      // allow temporarily for Express error handlers
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
+  }
+);
+
