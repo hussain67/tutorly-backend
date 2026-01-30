@@ -6,7 +6,7 @@
 		"dev": "ts-node-dev --respawn --transpile-only src/server.ts",
 		"build": "tsc",
 		"start": "node dist/server.js",
-		"test": "vitest",
+		"test": "vitest --runInBand",
 		"lint": "eslint src/**/*.ts"
 	},
 	"keywords": [],
