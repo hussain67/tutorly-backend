@@ -21,19 +21,23 @@ export const connectTestDB = async () => {
 
 		const connectWithRetry = async (
 			uri: string,
-			retries = 5,
-			delayMs = 2000
+			retries = 10,
+			delayMs = 3000
 		) => {
 			for (let attempt = 1; attempt <= retries; attempt++) {
 				try {
+					console.log(`[MongoDB] Attempt ${attempt}/${retries}: Connecting to ${uri}`);
 					await mongoose.connect(uri, {
-						serverSelectionTimeoutMS: 5000,
-						connectTimeoutMS: 5000
+						serverSelectionTimeoutMS: 10000,
+						connectTimeoutMS: 10000,
+						socketTimeoutMS: 10000
 					});
+					console.log(`[MongoDB] Connected successfully on attempt ${attempt}`);
 					return;
 				} catch (error) {
+					console.error(`[MongoDB] Connection attempt ${attempt} failed:`, (error as Error).message);
 					if (attempt === retries) {
-						throw error;
+						throw new Error(`Failed to connect to MongoDB after ${retries} attempts: ${(error as Error).message}`);
 					}
 					await new Promise((resolve) => setTimeout(resolve, delayMs));
 				}
